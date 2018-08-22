@@ -9,3 +9,4 @@
 /Users/eshwarrachala/git/localmarket/obj/Debug/netcoreapp2.0/localmarket.AssemblyInfo.cs
 /Users/eshwarrachala/git/localmarket/obj/Debug/netcoreapp2.0/localmarket.dll
 /Users/eshwarrachala/git/localmarket/obj/Debug/netcoreapp2.0/localmarket.pdb
+/Users/eshwarrachala/git/localmarket/bin/Debug/netcoreapp2.0/app.yaml
