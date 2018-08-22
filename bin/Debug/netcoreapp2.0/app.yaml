@@ -1,5 +1,5 @@
-Runtime: aspnetcore
+runtime: aspnetcore
 env: flex
 endpoints_api_service:
-  name: [localmarket-213804.appspot.com]
+  name: localmarket-213804.appspot.com
   rollout_strategy: managed
