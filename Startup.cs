@@ -23,9 +23,25 @@ namespace localmarket {
             services.AddMvc ();
             // Register the Swagger generator
             services.AddSwaggerGen (c => {
-                c.SwaggerDoc (
-                    "v1",
-                    new Info { Title = "My API", Version = "v1" });
+
+                c.SwaggerDoc ("v1", new Info {
+                    Version = "v1",
+                        Title = "Local Market API",
+                        Description = "Local Market API",
+                        TermsOfService = "None",
+                        Contact = new Contact {
+                            Name = "Eshwar Rachala",
+                                Email = string.Empty,
+                                Url = "https://twitter.com/eswarrachala"
+                        },
+                        License = new License {
+                            Name = "Local market",
+                                Url = "https://example.com/license"
+                        }
+                });
+                // var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                // var xmlPath = Path.Combine (AppContext.BaseDirectory, xmlFile);
+                // c.IncludeXmlComments (xmlPath);
             });
         }
 
@@ -34,13 +50,16 @@ namespace localmarket {
             if (env.IsDevelopment ()) {
                 app.UseDeveloperExceptionPage ();
             }
+            
+            app.UseStaticFiles();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger ();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI (c => {
-                c.SwaggerEndpoint ("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint ("/swagger/v1/swagger.json", "Local Market API V1");
+                c.RoutePrefix = string.Empty;
             });
 
             app.UseMvc ();

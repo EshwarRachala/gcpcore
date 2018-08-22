@@ -10,3 +10,5 @@
 /Users/eshwarrachala/git/localmarket/obj/Debug/netcoreapp2.0/localmarket.dll
 /Users/eshwarrachala/git/localmarket/obj/Debug/netcoreapp2.0/localmarket.pdb
 /Users/eshwarrachala/git/localmarket/bin/Debug/netcoreapp2.0/app.yaml
+/Users/eshwarrachala/git/localmarket/bin/Debug/netcoreapp2.0/localmarket.xml
+/Users/eshwarrachala/git/localmarket/obj/Debug/netcoreapp2.0/localmarket.xml
