@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace localmarket {
@@ -43,15 +45,52 @@ namespace localmarket {
                 // var xmlPath = Path.Combine (AppContext.BaseDirectory, xmlFile);
                 // c.IncludeXmlComments (xmlPath);
             });
+
+            services.AddCors (options => {
+                options.AddPolicy ("AllowEverything",
+                    builder => builder
+                    .AllowAnyHeader ()
+                    .AllowAnyMethod ()
+                    .AllowAnyOrigin () // You'll want to restrict the policy to only your allowed origins (i.e. the address of the site hitting the API)
+                    .AllowCredentials ()
+                );
+            });
+
+            services
+                .AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer (options => {
+                    options.Authority = "https://securetoken.google.com/localmarket-213804";
+                    options.TokenValidationParameters = new TokenValidationParameters {
+                        ValidateIssuer = true,
+                        ValidateAudience = true, 
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey=true,
+                        ValidIssuer = "https://securetoken.google.com/localmarket-213804",
+                        ValidAudience = "localmarket-213804"   
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure (IApplicationBuilder app, IHostingEnvironment env) {
+        public void Configure (IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory) {
             if (env.IsDevelopment ()) {
                 app.UseDeveloperExceptionPage ();
             }
-            
-            app.UseStaticFiles();
+
+            loggerFactory.AddConsole ();
+
+            app.UseCors ("AllowEverything");
+
+            var issuerKeyProvider = new FirebaseIssuerKeyProvider ();
+            var signingKeys = issuerKeyProvider.GetSigningKeys ().Result;
+
+            // The projectId can be found in Firebase project settings
+            var firebaseProjectId = "localmarket-213804";
+
+            if (string.IsNullOrEmpty (firebaseProjectId))
+                throw new Exception ("Need your project Id from Firebase settings up in here");
+
+            app.UseStaticFiles ();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger ();
@@ -62,6 +101,7 @@ namespace localmarket {
                 c.RoutePrefix = string.Empty;
             });
 
+            app.UseMvcWithDefaultRoute ();
             app.UseMvc ();
         }
     }
