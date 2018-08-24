@@ -8,18 +8,19 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace localmarket
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            BuildWebHost(args).Run();
+namespace localmarket {
+    public class Program {
+        public static void Main (string[] args) {
+            BuildWebHost (args).Run ();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
+        public static IWebHost BuildWebHost (string[] args) =>
+            WebHost.CreateDefaultBuilder (args)
+            .UseStartup<Startup> ()
+            .UseContentRoot (Directory.GetCurrentDirectory ())
+            .ConfigureAppConfiguration ((builderContext, config) => {
+                config.AddJsonFile ("appsettings.json", optional : true, reloadOnChange : true);
+            })
+            .Build ();
     }
 }

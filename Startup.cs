@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCore.Firebase.Authentication.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -56,19 +57,22 @@ namespace localmarket {
                 );
             });
 
-            services
-                .AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer (options => {
-                    options.Authority = "https://securetoken.google.com/localmarket-213804";
-                    options.TokenValidationParameters = new TokenValidationParameters {
-                        ValidateIssuer = true,
-                        ValidateAudience = true, 
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey=true,
-                        ValidIssuer = "https://securetoken.google.com/localmarket-213804",
-                        ValidAudience = "localmarket-213804"   
-                    };
-                });
+            services.AddFirebaseAuthentication (Configuration["FirebaseAuthentication:Issuer"],
+                Configuration["FirebaseAuthentication:Audience"]);
+
+            // services
+            //     .AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
+            //     .AddJwtBearer (options => {
+            //         options.Authority = "https://securetoken.google.com/localmarket-213804";
+            //         options.TokenValidationParameters = new TokenValidationParameters {
+            //             ValidateIssuer = true,
+            //             ValidateAudience = true, 
+            //             ValidateLifetime = true,
+            //             ValidateIssuerSigningKey=true,
+            //             ValidIssuer = "https://securetoken.google.com/localmarket-213804",
+            //             ValidAudience = "localmarket-213804"   
+            //         };
+            //     });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -81,14 +85,14 @@ namespace localmarket {
 
             app.UseCors ("AllowEverything");
 
-            var issuerKeyProvider = new FirebaseIssuerKeyProvider ();
-            var signingKeys = issuerKeyProvider.GetSigningKeys ().Result;
+            // var issuerKeyProvider = new FirebaseIssuerKeyProvider ();
+            // var signingKeys = issuerKeyProvider.GetSigningKeys ().Result;
 
-            // The projectId can be found in Firebase project settings
-            var firebaseProjectId = "localmarket-213804";
+            // // The projectId can be found in Firebase project settings
+            // var firebaseProjectId = "localmarket-213804";
 
-            if (string.IsNullOrEmpty (firebaseProjectId))
-                throw new Exception ("Need your project Id from Firebase settings up in here");
+            // if (string.IsNullOrEmpty (firebaseProjectId))
+            //     throw new Exception ("Need your project Id from Firebase settings up in here");
 
             app.UseStaticFiles ();
 
@@ -100,6 +104,8 @@ namespace localmarket {
                 c.SwaggerEndpoint ("/swagger/v1/swagger.json", "Local Market API V1");
                 c.RoutePrefix = string.Empty;
             });
+
+            app.UseAuthentication ();
 
             app.UseMvcWithDefaultRoute ();
             app.UseMvc ();
