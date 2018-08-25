@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AspNetCore.Firebase.Authentication.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -52,27 +55,27 @@ namespace localmarket {
                     builder => builder
                     .AllowAnyHeader ()
                     .AllowAnyMethod ()
-                    .AllowAnyOrigin () // You'll want to restrict the policy to only your allowed origins (i.e. the address of the site hitting the API)
+                    .AllowAnyOrigin ()
                     .AllowCredentials ()
                 );
             });
 
-            services.AddFirebaseAuthentication (Configuration["FirebaseAuthentication:Issuer"],
-                Configuration["FirebaseAuthentication:Audience"]);
+            // services.AddFirebaseAuthentication (Configuration["FirebaseAuthentication:Issuer"],
+            //     Configuration["FirebaseAuthentication:Audience"]);
 
-            // services
-            //     .AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
-            //     .AddJwtBearer (options => {
-            //         options.Authority = "https://securetoken.google.com/localmarket-213804";
-            //         options.TokenValidationParameters = new TokenValidationParameters {
-            //             ValidateIssuer = true,
-            //             ValidateAudience = true, 
-            //             ValidateLifetime = true,
-            //             ValidateIssuerSigningKey=true,
-            //             ValidIssuer = "https://securetoken.google.com/localmarket-213804",
-            //             ValidAudience = "localmarket-213804"   
-            //         };
-            //     });
+            services
+                .AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer (options => {
+                    options.Authority = "https://securetoken.google.com/localmarket-213804";
+                    options.TokenValidationParameters = new TokenValidationParameters {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = "https://securetoken.google.com/localmarket-213804",
+                        ValidAudience = "localmarket-213804"
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -81,18 +84,31 @@ namespace localmarket {
                 app.UseDeveloperExceptionPage ();
             }
 
-            loggerFactory.AddConsole ();
+            loggerFactory.AddConsole (Configuration.GetSection("Logging"));
+            loggerFactory.AddDebug();
 
             app.UseCors ("AllowEverything");
 
-            // var issuerKeyProvider = new FirebaseIssuerKeyProvider ();
-            // var signingKeys = issuerKeyProvider.GetSigningKeys ().Result;
+            var issuerKeyProvider = new FirebaseIssuerKeyProvider ();
+            var signingKeys = issuerKeyProvider.GetSigningKeys ().Result;
 
-            // // The projectId can be found in Firebase project settings
-            // var firebaseProjectId = "localmarket-213804";
+            // The projectId can be found in Firebase project settings
+            var firebaseProjectId = "localmarket-213804";
 
-            // if (string.IsNullOrEmpty (firebaseProjectId))
-            //     throw new Exception ("Need your project Id from Firebase settings up in here");
+            if (string.IsNullOrEmpty (firebaseProjectId))
+                throw new Exception ("Need your project Id from Firebase settings up in here");
+
+            app.UseAuthentication ();
+
+        //    app.Run (async context => {
+        //         if (context.User.Identity.IsAuthenticated) {
+        //             var identity = (ClaimsIdentity) context.User.Identity;
+        //             await context.Request.GetType();
+        //          //  await context.Response (identity.Claims.FirstOrDefault (c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+        //         } else {
+        //             Console.WriteLine ("not authenticated");
+        //         }
+        //     });
 
             app.UseStaticFiles ();
 
@@ -104,8 +120,6 @@ namespace localmarket {
                 c.SwaggerEndpoint ("/swagger/v1/swagger.json", "Local Market API V1");
                 c.RoutePrefix = string.Empty;
             });
-
-            app.UseAuthentication ();
 
             app.UseMvcWithDefaultRoute ();
             app.UseMvc ();
