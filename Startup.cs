@@ -54,6 +54,8 @@ namespace localmarket {
                         In = "header",
                         Type = "apiKey"
                 });
+                c.AddSecurityRequirement (new Dictionary<string, IEnumerable<string>> { { "Bearer", new string[] { } },
+                });
                 // var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 // var xmlPath = Path.Combine (AppContext.BaseDirectory, xmlFile);
                 // c.IncludeXmlComments (xmlPath);
@@ -104,8 +106,6 @@ namespace localmarket {
             if (string.IsNullOrEmpty (firebaseProjectId))
                 throw new Exception ("Need your project Id from Firebase settings up in here");
 
-            app.UseAuthentication ();
-
             app.UseStaticFiles ();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
@@ -115,7 +115,11 @@ namespace localmarket {
             app.UseSwaggerUI (c => {
                 c.SwaggerEndpoint ("/swagger/v1/swagger.json", "Local Market API V1");
                 c.RoutePrefix = string.Empty;
+                c.DocumentTitle = "Title Documentation";
+                c.DocExpansion (DocExpansion.None);
             });
+
+            app.UseAuthentication ();
 
             app.UseMvcWithDefaultRoute ();
             //    app.UseMvc ();
