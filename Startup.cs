@@ -27,6 +27,8 @@ namespace localmarket {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices (IServiceCollection services) {
             services.AddMvc ();
+
+            services.AddLogging ();
             // Register the Swagger generator
             services.AddSwaggerGen (c => {
 
@@ -45,6 +47,13 @@ namespace localmarket {
                                 Url = "https://example.com/license"
                         }
                 });
+
+                c.AddSecurityDefinition ("Bearer", new ApiKeyScheme {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                        Name = "Authorization",
+                        In = "header",
+                        Type = "apiKey"
+                });
                 // var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 // var xmlPath = Path.Combine (AppContext.BaseDirectory, xmlFile);
                 // c.IncludeXmlComments (xmlPath);
@@ -60,20 +69,17 @@ namespace localmarket {
                 );
             });
 
-            // services.AddFirebaseAuthentication (Configuration["FirebaseAuthentication:Issuer"],
-            //     Configuration["FirebaseAuthentication:Audience"]);
-
             services
                 .AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer (options => {
-                    options.Authority = "https://securetoken.google.com/localmarket-213804";
+                    options.Authority = Configuration["JWT:Issuer"];
                     options.TokenValidationParameters = new TokenValidationParameters {
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = "https://securetoken.google.com/localmarket-213804",
-                        ValidAudience = "localmarket-213804"
+                        ValidIssuer = Configuration["JWT:Issuer"],
+                        ValidAudience = Configuration["JWT:Audience"]
                     };
                 });
         }
@@ -84,8 +90,8 @@ namespace localmarket {
                 app.UseDeveloperExceptionPage ();
             }
 
-            loggerFactory.AddConsole (Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
+            loggerFactory.AddConsole (Configuration.GetSection ("Logging"));
+            loggerFactory.AddDebug ();
 
             app.UseCors ("AllowEverything");
 
@@ -100,16 +106,6 @@ namespace localmarket {
 
             app.UseAuthentication ();
 
-        //    app.Run (async context => {
-        //         if (context.User.Identity.IsAuthenticated) {
-        //             var identity = (ClaimsIdentity) context.User.Identity;
-        //             await context.Request.GetType();
-        //          //  await context.Response (identity.Claims.FirstOrDefault (c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-        //         } else {
-        //             Console.WriteLine ("not authenticated");
-        //         }
-        //     });
-
             app.UseStaticFiles ();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
@@ -122,7 +118,7 @@ namespace localmarket {
             });
 
             app.UseMvcWithDefaultRoute ();
-            app.UseMvc ();
+            //    app.UseMvc ();
         }
     }
 }
