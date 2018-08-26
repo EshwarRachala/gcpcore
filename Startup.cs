@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AspNetCore.Firebase.Authentication.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -44,7 +43,7 @@ namespace localmarket {
                         },
                         License = new License {
                             Name = "Local market",
-                                Url = "https://example.com/license"
+                                Url = "https://eshwarrachala.com/"
                         }
                 });
 
@@ -71,21 +70,19 @@ namespace localmarket {
                 );
             });
 
-            services.AddFirebaseAuthentication (Configuration["JWT:Issuer"], Configuration["JWT:Audience"]);
-
-            // services
-            //     .AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
-            //     .AddJwtBearer (options => {
-            //         options.Authority = Configuration["JWT:Issuer"];
-            //         options.TokenValidationParameters = new TokenValidationParameters {
-            //             ValidateIssuer = true,
-            //             ValidateAudience = true,
-            //             ValidateLifetime = true,
-            //             ValidateIssuerSigningKey = true,
-            //             ValidIssuer = Configuration["JWT:Issuer"],
-            //             ValidAudience = Configuration["JWT:Audience"]
-            //         };
-            //     });
+            services
+                .AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer (options => {
+                    options.Authority = Configuration["JWT:Issuer"];
+                    options.TokenValidationParameters = new TokenValidationParameters {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = Configuration["JWT:Issuer"],
+                        ValidAudience = Configuration["JWT:Audience"]
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
