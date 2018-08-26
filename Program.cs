@@ -17,12 +17,31 @@ namespace localmarket {
 
         public static IWebHost BuildWebHost (string[] args) =>
             WebHost.CreateDefaultBuilder (args)
-            .UseStartup<Startup> ()
+            .UseKestrel ()
             .UseContentRoot (Directory.GetCurrentDirectory ())
             .ConfigureAppConfiguration ((builderContext, config) => {
-                config.AddJsonFile ("appsettings.json", optional : true, reloadOnChange : true);
-              //  .AddJsonFile ($"appsettings.{ env.EnvironmentName}.json", optional : true);
+
+                IHostingEnvironment env = builderContext.HostingEnvironment;
+
+                config.SetBasePath (Directory.GetCurrentDirectory ())
+                    .AddJsonFile ("appsettings.json", optional : true, reloadOnChange : true)
+                    .AddJsonFile ($"appsettings.{env.EnvironmentName}.json", optional : true, reloadOnChange : true)
+                    .AddEnvironmentVariables ();
+
+                if (args != null) {
+                    config.AddCommandLine (args);
+                }
             })
+            .ConfigureLogging ((hostingContext, logging) => {
+                logging.AddConfiguration (hostingContext.Configuration.GetSection ("Logging"));
+                logging.AddConsole ();
+                logging.AddDebug ();
+            })
+            .UseIISIntegration ()
+            .UseDefaultServiceProvider ((context, options) => {
+                options.ValidateScopes = context.HostingEnvironment.IsDevelopment ();
+            })
+            .UseStartup<Startup> ()
             .Build ();
     }
 }
