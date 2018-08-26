@@ -7,12 +7,24 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace localmarket {
     public class Program {
         public static void Main (string[] args) {
+            Log.Logger = new LoggerConfiguration ()
+                .MinimumLevel.Debug ()
+                .WriteTo.Console ()
+                .WriteTo.Seq ("http://localhost:5341")
+                .WriteTo.File ("logs/log.clef", rollingInterval : RollingInterval.Day,
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .CreateLogger ();
+
+            Log.Information ("Hello, world!");
 
             BuildWebHost (args).Run ();
+
+            Log.CloseAndFlush ();
         }
 
         public static IWebHost BuildWebHost (string[] args) =>
