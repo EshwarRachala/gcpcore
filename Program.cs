@@ -16,7 +16,7 @@ namespace localmarket {
                 .MinimumLevel.Debug ()
                 .WriteTo.Console ()
                 .WriteTo.Seq ("http://localhost:5341")
-                .WriteTo.File ("logs/log.clef", rollingInterval : RollingInterval.Day,
+                .WriteTo.File ("log.clef", rollingInterval : RollingInterval.Day,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger ();
 
