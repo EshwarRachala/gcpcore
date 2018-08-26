@@ -21,7 +21,7 @@ namespace localmarket {
             .UseContentRoot (Directory.GetCurrentDirectory ())
             .ConfigureAppConfiguration ((builderContext, config) => {
                 config.AddJsonFile ("appsettings.json", optional : true, reloadOnChange : true);
-                // .AddJsonFile($"appsettings.{ env.EnvironmentName}.json", optional: true);
+              //  .AddJsonFile ($"appsettings.{ env.EnvironmentName}.json", optional : true);
             })
             .Build ();
     }
