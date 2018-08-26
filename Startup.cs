@@ -71,19 +71,21 @@ namespace localmarket {
                 );
             });
 
-            services
-                .AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer (options => {
-                    options.Authority = Configuration["JWT:Issuer"];
-                    options.TokenValidationParameters = new TokenValidationParameters {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = Configuration["JWT:Issuer"],
-                        ValidAudience = Configuration["JWT:Audience"]
-                    };
-                });
+            services.AddFirebaseAuthentication (Configuration["JWT:Issuer"], Configuration["JWT:Audience"]);
+
+            // services
+            //     .AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
+            //     .AddJwtBearer (options => {
+            //         options.Authority = Configuration["JWT:Issuer"];
+            //         options.TokenValidationParameters = new TokenValidationParameters {
+            //             ValidateIssuer = true,
+            //             ValidateAudience = true,
+            //             ValidateLifetime = true,
+            //             ValidateIssuerSigningKey = true,
+            //             ValidIssuer = Configuration["JWT:Issuer"],
+            //             ValidAudience = Configuration["JWT:Audience"]
+            //         };
+            //     });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -97,15 +99,6 @@ namespace localmarket {
 
             app.UseCors ("AllowEverything");
 
-            var issuerKeyProvider = new FirebaseIssuerKeyProvider ();
-            var signingKeys = issuerKeyProvider.GetSigningKeys ().Result;
-
-            // The projectId can be found in Firebase project settings
-            var firebaseProjectId = "localmarket-213804";
-
-            if (string.IsNullOrEmpty (firebaseProjectId))
-                throw new Exception ("Need your project Id from Firebase settings up in here");
-
             app.UseStaticFiles ();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
@@ -116,13 +109,12 @@ namespace localmarket {
                 c.SwaggerEndpoint ("/swagger/v1/swagger.json", "Local Market API V1");
                 c.RoutePrefix = string.Empty;
                 c.DocumentTitle = "Title Documentation";
-                c.DocExpansion (DocExpansion.None);
+                c.DocExpansion (DocExpansion.List);
             });
 
             app.UseAuthentication ();
-
-            app.UseMvcWithDefaultRoute ();
-            //    app.UseMvc ();
+            //  app.UseMvcWithDefaultRoute ();
+            app.UseMvc ();
         }
     }
 }

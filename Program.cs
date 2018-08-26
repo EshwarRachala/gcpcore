@@ -14,13 +14,6 @@ namespace localmarket {
     public class Program {
         public static void Main (string[] args) {
 
-            // FirebaseApp.Create (new AppOptions () {
-            //     Credential = GoogleCredential.GetApplicationDefault (),
-            // });
-            // FirebaseApp.Create ();
-
-        
-
             BuildWebHost (args).Run ();
         }
 
